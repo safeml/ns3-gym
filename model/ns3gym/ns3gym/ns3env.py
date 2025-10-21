@@ -194,7 +194,8 @@ class Ns3ZmqBridge(object):
                 self.forceEnvStop = True
                 self.send_close_command()
 
-        self.extraInfo = envStateMsg.info
+        #Kamal making it a dictionary
+        self.extraInfo = {envStateMsg.info: False}
         if not self.extraInfo:
             self.extraInfo = {}
 
@@ -406,12 +407,13 @@ class Ns3Env(gym.Env):
         return [seed]
 
     def get_state(self):
+        print("***get_state**********")
         obs = self.ns3ZmqBridge.get_obs()
         reward = self.ns3ZmqBridge.get_reward()
         done = self.ns3ZmqBridge.is_game_over()
-        extraInfo = self.ns3ZmqBridge.get_extra_info()
+        extraInfo = {self.ns3ZmqBridge.get_extra_info():False}
         return (obs, reward, done, extraInfo)
-
+        
     def step(self, action):
         response = self.ns3ZmqBridge.step(action)
         self.envDirty = True
@@ -434,7 +436,8 @@ class Ns3Env(gym.Env):
         # get first observations
         self.ns3ZmqBridge.rx_env_state()
         obs = self.ns3ZmqBridge.get_obs()
-        return obs
+        extraInfo = {self.ns3ZmqBridge.get_extra_info():False}
+        return obs, extraInfo
 
     def render(self, mode='human'):
         return
