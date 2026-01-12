@@ -208,21 +208,6 @@ class Ns3ZmqBridge(object):
             self.extraInfo = {}
 
         self.newStateRx = True       
-        #self.extraInfo = {}
-        #try:
-        #    if hasattr(envStateMsg, "info") and envStateMsg.info:
-        #        # If info is string
-        #        self.extraInfo["info"] = envStateMsg.info
-        # if info is a protobuf Any or repeated fields, unpack here
-        #except Exception as e:
-        #    self.extraInfo = {}
-
-        #Kamal making it a dictionary
-        #self.extraInfo = {envStateMsg.info: False}
-        #if not self.extraInfo:
-        #    self.extraInfo = {}
-
-        #self.newStateRx = True
 
     def send_close_command(self):
         reply = pb.EnvActMsg()
@@ -434,16 +419,10 @@ class Ns3Env(gym.Env):
         obs = self.ns3ZmqBridge.get_obs()
         reward = self.ns3ZmqBridge.get_reward()
         done = self.ns3ZmqBridge.is_game_over()
-        info = self.ns3ZmqBridge.get_extra_info() or {} #Kamal
-        #extraInfo = {self.ns3ZmqBridge.get_extra_info():False}
+        info = self.ns3ZmqBridge.get_extra_info() or {}
         return (obs, reward, done, info)
         
     def step(self, action):
-        #response = self.ns3ZmqBridge.step(action)
-        #self.envDirty = True
-        #return self.get_state()
-        # send and receive synchronously
-        #Kamal
         self.ns3ZmqBridge.send_actions(action)
         self.ns3ZmqBridge.rx_env_state()
         obs, reward, done, info = self.get_state()
@@ -451,7 +430,7 @@ class Ns3Env(gym.Env):
         truncated = False #here this env never truncates
         return obs, reward, done, truncated, info
 
-    def reset(self): #Kamal
+    def reset(self):
         # always recreate environment to be safe
         if self.ns3ZmqBridge:
             self.ns3ZmqBridge.close()
@@ -465,30 +444,7 @@ class Ns3Env(gym.Env):
         self.ns3ZmqBridge.rx_env_state()
         obs = self.ns3ZmqBridge.get_obs()
         info = self.ns3ZmqBridge.get_extra_info() or {}
-        print("***new reset***")
         return obs, info
-
-    #def reset(self):
-        
-
-    #    if not self.envDirty:
-    #        obs = self.ns3ZmqBridge.get_obs()
-    #        return obs
-
-    #   if self.ns3ZmqBridge:
-    #       self.ns3ZmqBridge.close()
-    #      self.ns3ZmqBridge = None
-
-    # self.envDirty = False
-    #  self.ns3ZmqBridge = Ns3ZmqBridge(self.port, self.startSim, self.simSeed, self.simArgs, self.debug)
-    #  self.ns3ZmqBridge.initialize_env(self.stepTime)
-    #  self.action_space = self.ns3ZmqBridge.get_action_space()
-    #  self.observation_space = self.ns3ZmqBridge.get_observation_space()
-    #  # get first observations
-    #  self.ns3ZmqBridge.rx_env_state()
-    #  obs = self.ns3ZmqBridge.get_obs()
-    #  extraInfo = {self.ns3ZmqBridge.get_extra_info():False}
-    # return obs, extraInfo
 
     def render(self, mode='human'):
         return
