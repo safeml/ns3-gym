@@ -415,7 +415,6 @@ class Ns3Env(gym.Env):
         return [seed]
 
     def get_state(self):
-        print("***get_state**********")
         obs = self.ns3ZmqBridge.get_obs()
         reward = self.ns3ZmqBridge.get_reward()
         done = self.ns3ZmqBridge.is_game_over()
